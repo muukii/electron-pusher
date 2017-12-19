@@ -18,6 +18,12 @@ let mainConfig = {
   module: {
     rules: [
       {
+        test: /\.ts$/,
+        use: [
+          {loader: 'awesome-typescript-loader'}
+        ]
+      },
+      {
         test: /\.js$/,
         use: 'babel-loader',
         exclude: /node_modules/
@@ -41,7 +47,7 @@ let mainConfig = {
     new webpack.NoEmitOnErrorsPlugin()
   ],
   resolve: {
-    extensions: ['.js', '.json', '.node']
+    extensions: ['.js', '.json', '.node', '.ts']
   },
   target: 'electron-main'
 }

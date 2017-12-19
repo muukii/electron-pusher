@@ -31,6 +31,12 @@ let rendererConfig = {
   module: {
     rules: [
       {
+        test: /\.ts$/,
+        use: [
+          {loader: 'awesome-typescript-loader'}
+        ]
+      },
+      {
         test: /\.css$/,
         use: ExtractTextPlugin.extract({
           fallback: 'style-loader',
@@ -124,7 +130,7 @@ let rendererConfig = {
       '@': path.join(__dirname, '../src/renderer'),
       'vue$': 'vue/dist/vue.esm.js'
     },
-    extensions: ['.js', '.vue', '.json', '.css', '.node']
+    extensions: ['.js', '.vue', '.json', '.css', '.node', '.ts']
   },
   target: 'electron-renderer'
 }

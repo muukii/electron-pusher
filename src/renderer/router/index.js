@@ -7,8 +7,8 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'list-page',
-      component: require('@/components/ListPage').default
+      name: 'edit-payload-page',
+      component: require('@/components/EditPayloadPage/EditPayloadPage.vue').default
     },
     {
       path: '*',

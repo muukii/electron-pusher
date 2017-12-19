@@ -18,6 +18,12 @@ let webConfig = {
   module: {
     rules: [
       {
+        test: /\.ts$/,
+        use: [
+          {loader: 'awesome-typescript-loader'}
+        ]
+      },
+      {
         test: /\.css$/,
         use: ExtractTextPlugin.extract({
           fallback: 'style-loader',
