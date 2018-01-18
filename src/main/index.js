@@ -1,65 +1,123 @@
-import { app, BrowserWindow } from 'electron'
+'use strict'
 
-/**
- * Set `__static` path to static files in production
- * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
- */
-if (process.env.NODE_ENV !== 'development') {
-  global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
-}
+import {
+  app,
+  BrowserWindow,
+  Menu
+} from 'electron'
 
+const isDevelopment = process.env.NODE_ENV !== 'production'
+
+// Global reference to mainWindow
+// Necessary to prevent win from being garbage collected
 let mainWindow
-const winURL = process.env.NODE_ENV === 'development'
-  ? `http://localhost:9080`
-  : `file://${__dirname}/index.html`
 
-function createWindow () {
-  /**
-   * Initial window options
-   */
-  mainWindow = new BrowserWindow({
-    height: 563,
-    useContentSize: true,
-    width: 1000
+function createMainWindow() {
+  // Construct new BrowserWindow
+  const window = new BrowserWindow({
+    width: 400,
+    height: 600
   })
 
-  mainWindow.loadURL(winURL)
+  // Set url for `win`
+  // points to `webpack-dev-server` in development
+  // points to `index.html` in production
+  const url = isDevelopment ?
+    `http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}` :
+    `file://${__dirname}/index.html`
 
-  mainWindow.on('closed', () => {
+  if (isDevelopment) {
+    window.webContents.openDevTools()
+  }
+
+  window.loadURL(url)
+
+  window.on('closed', () => {
     mainWindow = null
   })
+
+  window.webContents.on('devtools-opened', () => {
+    window.focus()
+    setImmediate(() => {
+      window.focus()
+    })
+  })
+
+  return window
 }
 
-app.on('ready', createWindow)
-
+// Quit application when all windows are closed
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
+  // On macOS it is common for applications to stay open
+  // until the user explicitly quits
+  if (process.platform !== 'darwin') app.quit()
 })
 
 app.on('activate', () => {
-  if (mainWindow === null) {
-    createWindow()
-  }
+  // On macOS it is common to re-create a window
+  // even after all windows have been closed
+  if (mainWindow === null) mainWindow = createMainWindow()
 })
 
-/**
- * Auto Updater
- *
- * Uncomment the following code below and install `electron-updater` to
- * support auto updating. Code Signing with a valid certificate is required.
- * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-electron-builder.html#auto-updating
- */
-
-/*
-import { autoUpdater } from 'electron-updater'
-
-autoUpdater.on('update-downloaded', () => {
-  autoUpdater.quitAndInstall()
-})
-
+// Create main BrowserWindow when electron is ready
 app.on('ready', () => {
-  if (process.env.NODE_ENV === 'production') autoUpdater.checkForUpdates()
+  mainWindow = createMainWindow()
+
+  // Create the Application's main menu
+  var template = [{
+    label: "Application",
+    submenu: [{
+        label: "About Application",
+        selector: "orderFrontStandardAboutPanel:"
+      },
+      {
+        type: "separator"
+      },
+      {
+        label: "Quit",
+        accelerator: "Command+Q",
+        click: function () {
+          app.quit();
+        }
+      }
+    ]
+  }, {
+    label: "Edit",
+    submenu: [{
+        label: "Undo",
+        accelerator: "CmdOrCtrl+Z",
+        selector: "undo:"
+      },
+      {
+        label: "Redo",
+        accelerator: "Shift+CmdOrCtrl+Z",
+        selector: "redo:"
+      },
+      {
+        type: "separator"
+      },
+      {
+        label: "Cut",
+        accelerator: "CmdOrCtrl+X",
+        selector: "cut:"
+      },
+      {
+        label: "Copy",
+        accelerator: "CmdOrCtrl+C",
+        selector: "copy:"
+      },
+      {
+        label: "Paste",
+        accelerator: "CmdOrCtrl+V",
+        selector: "paste:"
+      },
+      {
+        label: "Select All",
+        accelerator: "CmdOrCtrl+A",
+        selector: "selectAll:"
+      }
+    ]
+  }];
+
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 })
- */
